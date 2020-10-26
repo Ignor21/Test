@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
 import Table from '../components/Table';
 import { inject, observer } from "mobx-react";
 
@@ -23,10 +23,17 @@ export default class Stocks extends React.Component {
   };
 
   render() {
-    const { data, error } = this.props.store;
+    const { oldData, data, error } = this.props.store;
     return (
       <View style={styles.wrapper}>
-        <Table data={data} error={error} />
+      {data ?
+        <Table oldData={oldData} data={data} error={error} />
+      :
+        <View style={styles.center}>
+          <ActivityIndicator color="#0000ff" />
+          <Text>Загрузка котировок...</Text>
+        </View>
+      }
       </View>
     );
   };
@@ -35,5 +42,10 @@ export default class Stocks extends React.Component {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

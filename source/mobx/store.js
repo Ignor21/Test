@@ -6,6 +6,9 @@ class Store {
   };
 
   @observable
+  oldData
+
+  @observable
   data
 
   @action
@@ -14,7 +17,6 @@ class Store {
     fetch('https://poloniex.com/public?command=returnTicker')
       .then(response => response.json())
       .then(data => {
-        console.log(data.error)
         if(data.error){
           this.setError(data.error);
         }
@@ -32,6 +34,7 @@ class Store {
 
   @action
   setData = (data) => {
+    typeof(this.oldData) === 'undefined' ? this.oldData = data : this.oldData = this.data;
     this.data = data;
     this.error = false;
   };

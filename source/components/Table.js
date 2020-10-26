@@ -1,57 +1,56 @@
 import React from 'react';
-import {View, Text, StyleSheet, ScrollView, ActivityIndicator} from 'react-native';
+import {View, Text, StyleSheet, ScrollView, FlatList} from 'react-native';
 
-function Table(props) {
+class Table extends React.PureComponent {
 
   cell = (text, last) => {
     return (
       <View style={[styles.cell, last && styles.lastCell]}>
-        <Text style={styles.text}>{text}</Text>
+        <Text style={[styles.text, text[1] > text[0] && {color: 'green'}, text[1] < text[0] && {color: 'red'}, text[1] == text[0] && {color: 'black'}]}>
+          {text[1]}
+        </Text>
       </View>
     );
   };
 
-  row = (id, name, lastBid, highestBid, percentageChange) => {
+  row = (prev, next) => {
     return (
-      <View style={styles.row} key={id}>
-        {cell(name)}
-        {cell(lastBid)}
-        {cell(highestBid)}
-        {cell(percentageChange, true)}
+      <View style={styles.row} key={next.id}>
+        {this.cell([prev.name, next.name])}
+        {this.cell([prev.lastBid, next.lastBid])}
+        {this.cell([prev.highestBid, next.highestBid])}
+        {this.cell([prev.percentChange, next.percentChange], true)}
       </View>
     );
   };
 
-  dataForTable = () => {
-    return props.data.map((element) => {
-      return (
-        row(element.id, element.name, element.lastBid, element.highestBid, element.percentChange)
-      );
-    });
-  };
+  renderItem = ({ item, index }) => (
+    this.row(this.props.oldData[index], item)
+  );
 
-  return (
-    <View style={styles.wrapper}>
-      {!!props.data ?
-      <ScrollView>
+  render(){
+    let labels = {id: 0, name: 'Name', lastBid: 'Last Bid', highestBid: 'Highest Bid', percentChange: 'Percent Change'}
+    return (
+      <View style={styles.wrapper}>
         <View style={styles.wrap}/>
-        {row('0', 'Name', 'Last Bid', 'Highest Bid', 'Percent Change')}
-        {props.error &&
+        {this.row(labels, labels)}
+        {this.props.error &&
           <View style={styles.error}>
             <Text>Ошибка</Text>
           </View>
         }
-        {dataForTable()}
-        <View style={styles.wrap}/>
-      </ScrollView>
-      :
-      <View style={styles.center}>
-        <ActivityIndicator color="#0000ff" />
-        <Text>Загрузка...</Text>
+        <FlatList
+          data={this.props.data}
+          renderItem={this.renderItem}
+          keyExtractor={item => item.id.toString()}
+          initialNumToRender={100}
+          maxToRenderPerBatch={50}
+          showsVerticalScrollIndicator={false}
+          ListFooterComponent={() => <View style={styles.wrap}/>}
+        />
       </View>
-      }
-    </View>
-  );
+    );
+  };
 };
 
 export default Table;
@@ -70,11 +69,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f55553',
     width: '96%',
     borderWidth: 0.5,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   row: {
     flexDirection: 'row',
