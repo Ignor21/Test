@@ -1,9 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, SafeAreaView } from "react-native";
-import { inject, observer } from "mobx-react";
 
-@inject("store")
-@observer
 export default class Stocks extends React.Component {
   constructor(props) {
     super(props);
